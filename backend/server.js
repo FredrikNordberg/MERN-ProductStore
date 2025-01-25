@@ -1,35 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
-import Product from "./models/product.model.js";
 
-dotenv.config();
+import productRoutes from "./routes/product.route.js";
 
-const app = express();
 
-app.use(express.json()); // allows us to accept JSON data in the body
+dotenv.config(); // Loads environment variables from a .env file...
 
-app.post("/api/products", async (req, res) => {
-  const product = req.body; // user will send this data
+const app = express(); // Creates an Express application...
 
-  if (!product.name || !product.price || !product.image) {
-    return res
-      .status(400)
-      .json({ sucess: false, message: "Please fill all fields" });
-  }
+app.use(express.json()); // Allows the server to handle JSON data sent in HTTP requests...
 
-  const newProduct = new Product(product); // create a new product document
+app.use("/api/products",productRoutes); // Mounts the product routes at '/api/products'...
 
-  try {
-    await newProduct.save(); // save the document to the database
-    res.status(201).json({ success: true, data: newProduct }); // respond with the saved document
-  } catch (error) {
-    console.error("Error in Create product:", error.message);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-});
 
+
+// Starts the server and listens for requests on port 5000...
 app.listen(5000, () => {
-  connectDB();
+  connectDB(); // Calls the function to connect to the database...
   console.log("Server stated at http://localhost:5000");
 });
